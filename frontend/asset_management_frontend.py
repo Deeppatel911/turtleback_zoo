@@ -58,9 +58,9 @@ def update_management_tab_content(ae):
         en_id_entry = ttk.Entry(notebook.nametowidget(notebook.select()), textvariable=en_id)
         en_id_entry.pack()
 
-        button = ttk.Button(selected_tab, text='Insert', command=lambda:am.insert_animal(a_id,status,birth_year,s_id,b_id,en_id))
+        button = ttk.Button(selected_tab, text='Insert', command=lambda:am.insert_animal(a_id.get(),status.get(),birth_year.get(),s_id.get(),b_id.get(),en_id.get()))
         button.pack()
-        button = ttk.Button(selected_tab, text='Update', command=lambda:am.update_animal(a_id,status,birth_year,s_id,b_id,en_id))
+        button = ttk.Button(selected_tab, text='Update', command=lambda:am.update_animal(a_id.get(),status.get(),birth_year.get(),s_id.get(),b_id.get(),en_id.get()))
         button.pack()
 
         listbox.pack(side=tk.LEFT, fill='both', expand=True)
