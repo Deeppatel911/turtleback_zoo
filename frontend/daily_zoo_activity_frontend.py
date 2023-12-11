@@ -3,6 +3,10 @@ from tkinter import ttk
 import backend.daily_zoo_activity_backend as dza
 
 
+def listbox_on_select_item(event, tree):
+    pass
+
+
 def clear_entity_tab_fields(tab):
     for widget in tab.winfo_children():
         widget.destroy()
@@ -12,10 +16,10 @@ def update_daily_zoo_activity_tab_content(ae):
     selected_tab = notebook.nametowidget(notebook.select())
     clear_entity_tab_fields(selected_tab)
 
-    listbox = tk.Listbox(selected_tab)
+    #listbox = tk.Listbox(selected_tab)
 
     if ae == "Attractions":
-        #dza.view_attractions_attendance_and_revenue()
+        results=dza.view_attractions_attendance_and_revenue()
 
         attractions_id_label = ttk.Label(notebook.nametowidget(notebook.select()), text='ATR_ID')
         attractions_id_label.pack()
@@ -49,8 +53,23 @@ def update_daily_zoo_activity_tab_content(ae):
 
         button = ttk.Button(selected_tab, text='Insert', command=lambda:dza.insert_attractions_attendance_and_revenue(attractions_id,attractions_name,attraction_show,attendance,revenue))
         button.pack()
+
+        columns = ("ATR_ID", "Name", "R_ID", "Attendance", "Revenue")
+        tree = ttk.Treeview(selected_tab, columns=columns, show="headings")
+
+        for col in columns:
+            tree.heading(col, text=col)
+
+        tree.bind("<<TreeviewSelect>>", lambda event: listbox_on_select_item(event, tree))
+
+        tree.pack(side=tk.LEFT, fill='both', expand=True)
+
+        sb = tk.Scrollbar(selected_tab)
+        sb.pack(side=tk.RIGHT, fill='y')
+
+        tree.config(yscrollcommand=sb.set)
     elif ae == "Concessions":
-        #dza.view_concessions_daily_revenue()
+        results=dza.view_concessions_daily_revenue()
 
         r_id_label = ttk.Label(notebook.nametowidget(notebook.select()), text='R_ID')
         r_id_label.pack()
@@ -70,10 +89,28 @@ def update_daily_zoo_activity_tab_content(ae):
         daily_revenue_entry = ttk.Entry(notebook.nametowidget(notebook.select()), textvariable=daily_revenue)
         daily_revenue_entry.pack()
 
-        button = ttk.Button(selected_tab, text='Insert', command=lambda:dza.insert_concessions_daily_revenue(r_id,product,daily_revenue))
+        button = ttk.Button(selected_tab, text='Insert', command=lambda:dza.insert_concessions_daily_revenue(r_id.get(),product.get(),daily_revenue.get()))
         button.pack()
+
+        columns = ("RID", "PRODUCT")
+        tree = ttk.Treeview(selected_tab, columns=columns, show="headings")
+
+        for col in columns:
+            tree.heading(col, text=col)
+
+        for row in results:
+            tree.insert("", "end", values=row)
+
+        tree.bind("<<TreeviewSelect>>", lambda event: listbox_on_select_item(event, tree))
+
+        tree.pack(side=tk.LEFT, fill='both', expand=True)
+
+        sb = tk.Scrollbar(selected_tab)
+        sb.pack(side=tk.RIGHT, fill='y')
+
+        tree.config(yscrollcommand=sb.set)
     elif ae == "Attendance":
-        #dza.view_attendance_numbers_and_revenue()
+        results=dza.view_attendance_numbers_and_revenue()
 
         attendance_id_label = ttk.Label(notebook.nametowidget(notebook.select()), text='ATD_ID')
         attendance_id_label.pack()
@@ -102,12 +139,27 @@ def update_daily_zoo_activity_tab_content(ae):
         button = ttk.Button(selected_tab, text='Insert', command=lambda:dza.insert_attendance_numbers_and_revenue(attendance_id,attendance_type,numbers,revenue))
         button.pack()
 
-    listbox.pack(side=tk.LEFT, fill='both', expand=True)
+        columns = ("ATD_ID", "Type", "Numbers", "Revenue")
+        tree = ttk.Treeview(selected_tab, columns=columns, show="headings")
 
-    sb = tk.Scrollbar(selected_tab)
-    sb.pack(side=tk.RIGHT, fill='y')
+        for col in columns:
+            tree.heading(col, text=col)
 
-    listbox.config(yscrollcommand=sb.set)
+        tree.bind("<<TreeviewSelect>>", lambda event: listbox_on_select_item(event, tree))
+
+        tree.pack(side=tk.LEFT, fill='both', expand=True)
+
+        sb = tk.Scrollbar(selected_tab)
+        sb.pack(side=tk.RIGHT, fill='y')
+
+        tree.config(yscrollcommand=sb.set)
+
+    #listbox.pack(side=tk.LEFT, fill='both', expand=True)
+
+    #sb = tk.Scrollbar(selected_tab)
+    #sb.pack(side=tk.RIGHT, fill='y')
+
+    #listbox.config(yscrollcommand=sb.set)
 
 
 def switch_daily_zoo_activity_tab(event):

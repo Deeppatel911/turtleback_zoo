@@ -7,6 +7,9 @@ import backend.management_and_reporting_backend as mar
 global selected_date, begin_date, end_date, selected_month_item
 tdy = datetime.today().date()
 
+def listbox_on_select_item(event, tree):
+    pass
+
 
 def on_dropdown_menu_selected_month(event):
     global selected_month_item
@@ -16,6 +19,67 @@ def on_dropdown_menu_selected_month(event):
 def on_dropdown_menu_selected_year(event):
     global selected_year_item
     selected_year_item = year_dropdown_menu.get()
+
+
+def day_revenue_by_source_assign_result(date,tree):
+    result_day_revenue_by_source=mar.generate_day_revenue_by_source(date)
+    
+    for item in tree.get_children():
+        tree.delete(item)
+
+    for row in result_day_revenue_by_source:
+        tree.insert("", "end", values=row)
+
+
+def animal_stats_assign_result(tree):
+    result_animal_stats=mar.generate_animal_stats()
+
+    for item in tree.get_children():
+        tree.delete(item)
+
+    for row in result_animal_stats:
+        tree.insert("", "end", values=row)
+
+
+def compute_top_attractions_by_revenue_assign_result(begin_cal_date,end_cal_date,tree):
+    begin_date_dt = datetime.strptime(begin_cal_date, "%m/%d/%y")
+    formatted_begin_date_str = begin_date_dt.strftime("%Y-%m-%d")
+
+    end_date_dt = datetime.strptime(end_cal_date, "%m/%d/%y")
+    formatted_end_date_str = end_date_dt.strftime("%Y-%m-%d")
+
+    result_compute_top_attractions_by_revenue=mar.compute_top_attractions_by_revenue(formatted_begin_date_str,formatted_end_date_str)
+    for item in tree.get_children():
+        tree.delete(item)
+
+    for row in result_compute_top_attractions_by_revenue:
+        tree.insert("", "end", values=row)
+
+
+def compute_month_best_days_revenue_assign_result(month,tree):
+    result_compute_month_best_days_revenue=mar.compute_month_best_days_revenue(month,globals()['selected_year_item'])
+
+    for item in tree.get_children():
+        tree.delete(item)
+
+    for row in result_compute_month_best_days_revenue:
+        tree.insert("", "end", values=row)
+
+
+def compute_average_revenue_attraction_concession_totalAttendance_assign_result(begin_cal_date,end_cal_date,tree):
+    begin_date_dt = datetime.strptime(begin_cal_date, "%m/%d/%y")
+    formatted_begin_date_str = begin_date_dt.strftime("%Y-%m-%d")
+
+    end_date_dt = datetime.strptime(end_cal_date, "%m/%d/%y")
+    formatted_end_date_str = end_date_dt.strftime("%Y-%m-%d")
+
+    result_compute_average_revenue_attraction_concession_totalAttendance=mar.compute_average_revenue_attraction_concession_totalAttendance(formatted_begin_date_str,formatted_end_date_str)
+    
+    for item in tree.get_children():
+        tree.delete(item)
+
+    for row in result_compute_average_revenue_attraction_concession_totalAttendance:
+        tree.insert("", "end", values=row)
 
 
 def clear_entity_tab_fields(tab):
@@ -36,13 +100,50 @@ def update_management_and_reporting_tab_content(ae):
         bottom_frame = tk.Frame(selected_tab)
         bottom_frame.pack(side=tk.BOTTOM, fill='x', expand='True')
 
-        button = ttk.Button(bottom_frame, text='Fetch', command=lambda:mar.generate_day_revenue_by_source(cal.get_date()))
+        columns = ("RID", "NAME", "TYPE", "BID", "SUBTOTAL")
+        tree = ttk.Treeview(selected_tab, columns=columns, show="headings")
+
+        for col in columns:
+            tree.heading(col, text=col)
+
+        button = ttk.Button(bottom_frame, text='Fetch', command=lambda:day_revenue_by_source_assign_result(cal.get_date(),tree))
         button.pack()
+
+        
+        #global result_day_revenue_by_source
+        #result_day_revenue_by_source=None
+        #for row in result_day_revenue_by_source:
+        #    tree.insert("", "end", values=row)
+
+        tree.bind("<<TreeviewSelect>>", lambda event: listbox_on_select_item(event, tree))
+
+        tree.pack(side=tk.LEFT, fill='both', expand=True)
+
+        sb = tk.Scrollbar(selected_tab)
+        sb.pack(side=tk.RIGHT, fill='y')
+
+        tree.config(yscrollcommand=sb.set)
     elif ae == "Animal_Stats":
-        #mar.generate_animal_stats()
 
         bottom_frame = tk.Frame(selected_tab)
         bottom_frame.pack(side=tk.BOTTOM, fill='x', expand='True')
+
+        columns = ("RID", "NAME", "TYPE", "BID", "SUBTOTAL")
+        tree = ttk.Treeview(selected_tab, columns=columns, show="headings")
+
+        for col in columns:
+            tree.heading(col, text=col)
+
+        tree.bind("<<TreeviewSelect>>", lambda event: listbox_on_select_item(event, tree))
+
+        tree.pack(side=tk.LEFT, fill='both', expand=True)
+
+        sb = tk.Scrollbar(selected_tab)
+        sb.pack(side=tk.RIGHT, fill='y')
+
+        tree.config(yscrollcommand=sb.set)
+
+        animal_stats_assign_result(tree)
     elif ae == "Top_Attractions_By_Revenue":
         upper_frame = tk.Frame(selected_tab)
         upper_frame.pack(side=tk.TOP,fill='both',expand=True)
@@ -68,8 +169,24 @@ def update_management_and_reporting_tab_content(ae):
         bottom_frame = tk.Frame(selected_tab)
         bottom_frame.pack(side=tk.BOTTOM, fill='x', expand='True')
 
-        button = ttk.Button(bottom_frame, text='Fetch', command=lambda:mar.compute_top_attractions_by_revenue(begin_cal.get_date(),end_cal.get_date()))
+        columns = ("Attraction Name", "Total Revenue")
+        tree = ttk.Treeview(bottom_frame, columns=columns, show="headings")
+
+        for col in columns:
+            tree.heading(col, text=col)
+
+
+        button = ttk.Button(bottom_frame, text='Fetch', command=lambda:compute_top_attractions_by_revenue_assign_result(begin_cal.get_date(),end_cal.get_date(),tree))
         button.pack()
+
+        tree.bind("<<TreeviewSelect>>", lambda event: listbox_on_select_item(event, tree))
+
+        tree.pack(side=tk.LEFT, fill='both', expand=True)
+
+        sb = tk.Scrollbar(selected_tab)
+        sb.pack(side=tk.RIGHT, fill='y')
+
+        tree.config(yscrollcommand=sb.set)
     elif ae == "Month_Best_Days_Revenue":
         selected_month=tk.StringVar(value='Select_Month')
         month_list=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
@@ -94,9 +211,24 @@ def update_management_and_reporting_tab_content(ae):
         bottom_frame = tk.Frame(selected_tab)
         bottom_frame.pack(side=tk.BOTTOM, fill='x', expand='True')
 
+        columns = ("Revenue Date", "Total Revenue")
+        tree = ttk.Treeview(bottom_frame, columns=columns, show="headings")
+
+        for col in columns:
+            tree.heading(col, text=col)
+
         
-        button = ttk.Button(bottom_frame, text='Fetch', command=lambda:mar.compute_month_best_days_revenue(globals()['selected_month_item'],globals()['selected_year_item']))
+        button = ttk.Button(bottom_frame, text='Fetch', command=lambda:compute_month_best_days_revenue_assign_result(month_list.index(selected_month.get())+1,tree))
         button.pack()
+
+        tree.bind("<<TreeviewSelect>>", lambda event: listbox_on_select_item(event, tree))
+
+        tree.pack(side=tk.LEFT, fill='both', expand=True)
+
+        sb = tk.Scrollbar(selected_tab)
+        sb.pack(side=tk.RIGHT, fill='y')
+
+        tree.config(yscrollcommand=sb.set)
     elif ae == "Average_Revenue_Attraction_Concession_TotalAttendance":
         upper_frame = tk.Frame(selected_tab)
         upper_frame.pack(side=tk.TOP,fill='both',expand=True)
@@ -122,8 +254,23 @@ def update_management_and_reporting_tab_content(ae):
         bottom_frame = tk.Frame(selected_tab)
         bottom_frame.pack(side=tk.BOTTOM, fill='x', expand='True')
     
-        button = ttk.Button(bottom_frame, text='Fetch', command=lambda:mar.compute_average_revenue_attraction_concession_totalAttendance(begin_cal.get_date(),end_cal.get_date()))
+        columns = ("Item Name", "Average Revenue")
+        tree = ttk.Treeview(bottom_frame, columns=columns, show="headings")
+
+        for col in columns:
+            tree.heading(col, text=col)
+
+        button = ttk.Button(bottom_frame, text='Fetch', command=lambda:compute_average_revenue_attraction_concession_totalAttendance_assign_result(begin_cal.get_date(),end_cal.get_date(),tree))
         button.pack()
+
+        tree.bind("<<TreeviewSelect>>", lambda event: listbox_on_select_item(event, tree))
+
+        tree.pack(side=tk.LEFT, fill='both', expand=True)
+
+        sb = tk.Scrollbar(selected_tab)
+        sb.pack(side=tk.RIGHT, fill='y')
+
+        tree.config(yscrollcommand=sb.set)
 
     
     #bottom_frame = tk.Frame(selected_tab)
@@ -133,13 +280,13 @@ def update_management_and_reporting_tab_content(ae):
     #button = ttk.Button(bottom_frame, text='Fetch', command=command_function)
     #button.pack()
 
-    listbox = tk.Listbox(bottom_frame)
-    listbox.pack(side=tk.LEFT, fill='x', expand=True)
+    #listbox = tk.Listbox(bottom_frame)
+    #listbox.pack(side=tk.LEFT, fill='x', expand=True)
 
-    sb = tk.Scrollbar(bottom_frame)
-    sb.pack(side=tk.RIGHT, fill='y')
+    #sb = tk.Scrollbar(bottom_frame)
+    #sb.pack(side=tk.RIGHT, fill='y')
 
-    listbox.config(yscrollcommand=sb.set)
+    #listbox.config(yscrollcommand=sb.set)
 
 
 def switch_management_and_reporting_tab(event):

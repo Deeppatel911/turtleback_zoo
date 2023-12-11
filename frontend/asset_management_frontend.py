@@ -3,7 +3,7 @@ from tkinter import ttk
 import backend.asset_management_backend as am
 
 
-def listbox_on_select_item(event):
+def listbox_on_select_item(event,tree):
     pass
 
 
@@ -20,7 +20,7 @@ def update_management_tab_content(ae):
 
     if ae == "Animals":
         # listbox.delete(0, 'end')
-        #am.view_animals()
+        results=am.view_animals()
 
         a_id_label = ttk.Label(notebook.nametowidget(notebook.select()), text='A_ID')
         a_id_label.pack()
@@ -58,20 +58,39 @@ def update_management_tab_content(ae):
         en_id_entry = ttk.Entry(notebook.nametowidget(notebook.select()), textvariable=en_id)
         en_id_entry.pack()
 
-        button = ttk.Button(selected_tab, text='Insert', command=lambda:am.insert_animal(a_id,status,birth_year,s_id,b_id,en_id))
+        button = ttk.Button(selected_tab, text='Insert', command=lambda:am.insert_animal(a_id.get(),status.get(),birth_year.get(),s_id.get(),b_id.get(),en_id.get()))
         button.pack()
-        button = ttk.Button(selected_tab, text='Update', command=lambda:am.update_animal(a_id,status,birth_year,s_id,b_id,en_id))
+        button = ttk.Button(selected_tab, text='Update', command=lambda:am.update_animal(a_id.get(),status.get(),birth_year.get(),s_id.get(),b_id.get(),en_id.get()))
         button.pack()
 
-        listbox.pack(side=tk.LEFT, fill='both', expand=True)
+        #listbox.pack(side=tk.LEFT, fill='both', expand=True)
+
+        #sb = tk.Scrollbar(selected_tab)
+        #sb.pack(side=tk.RIGHT, fill='y')
+
+        #listbox.config(yscrollcommand=sb.set)
+        #listbox.bind('<<ListboxSelect>>',get_selected_row)
+
+        columns = ("A_ID", "Status", "Birth_Year", "S_ID", "B_ID", "EN_ID")
+        tree = ttk.Treeview(selected_tab, columns=columns, show="headings")
+
+        for col in columns:
+            tree.heading(col, text=col)
+
+        for row in results:
+            tree.insert("", "end", values=row)
+
+        tree.bind("<<TreeviewSelect>>", lambda event: listbox_on_select_item(event, tree))
+
+        tree.pack(side=tk.LEFT, fill='both', expand=True)
 
         sb = tk.Scrollbar(selected_tab)
         sb.pack(side=tk.RIGHT, fill='y')
 
-        listbox.config(yscrollcommand=sb.set)
-        listbox.bind('<<ListboxSelect>>',get_selected_row)
+        tree.config(yscrollcommand=sb.set)
+
     elif ae == "Buildings":
-        #am.view_buildings()
+        results=am.view_buildings()
 
         b_id_label = ttk.Label(notebook.nametowidget(notebook.select()), text='B_ID')
         b_id_label.pack()
@@ -91,10 +110,28 @@ def update_management_tab_content(ae):
         building_type_entry = ttk.Entry(notebook.nametowidget(notebook.select()), textvariable=building_type)
         building_type_entry.pack()
 
-        button = ttk.Button(selected_tab, text='Insert', command=lambda:am.insert_building(b_id,b_name,building_type))
+        button = ttk.Button(selected_tab, text='Insert', command=lambda:am.insert_building(b_id.get(),b_name.get(),building_type.get()))
         button.pack()
-        button = ttk.Button(selected_tab, text='Update', command=lambda:am.update_building(b_id,b_name,building_type))
+        button = ttk.Button(selected_tab, text='Update', command=lambda:am.update_building(b_id.get(),b_name.get(),building_type.get()))
         button.pack()
+
+        columns = ("BID", "NAME", "TYPE")
+        tree = ttk.Treeview(selected_tab, columns=columns, show="headings")
+
+        for col in columns:
+            tree.heading(col, text=col)
+
+        for row in results:
+            tree.insert("", "end", values=row)
+
+        tree.bind("<<TreeviewSelect>>", lambda event: listbox_on_select_item(event, tree))
+
+        tree.pack(side=tk.LEFT, fill='both', expand=True)
+
+        sb = tk.Scrollbar(selected_tab)
+        sb.pack(side=tk.RIGHT, fill='y')
+
+        tree.config(yscrollcommand=sb.set)
     elif ae == "Attractions":
         #am.view_attractions()
 
@@ -162,8 +199,23 @@ def update_management_tab_content(ae):
         button.pack()
         button = ttk.Button(selected_tab, text='Update', command=lambda:am.update_attraction(atr_id,attraction_name,b_id,building_name,number_of_shows_per_day,child_ticket_price,adult_ticket_price,senior_ticket_price,a_id,number_of_animals))
         button.pack()
+
+        columns = ("ATR_ID","Attraction_Name","B_ID","Building_Name","Number_Of_Shows_Per_Day","Child_Ticket_Price", "Adult_Ticket_Price", "Senior_Ticket_Price", "A_ID", "Number_Of_Animals")
+        tree = ttk.Treeview(selected_tab, columns=columns, show="headings")
+
+        for col in columns:
+            tree.heading(col, text=col)
+
+        tree.bind("<<TreeviewSelect>>", lambda event: listbox_on_select_item(event, tree))
+
+        tree.pack(side=tk.LEFT, fill='both', expand=True)
+
+        sb = tk.Scrollbar(selected_tab)
+        sb.pack(side=tk.RIGHT, fill='y')
+
+        tree.config(yscrollcommand=sb.set)
     elif ae == "Employees":
-        #am.view_employees()
+        results=am.view_employees()
 
         e_id_label = ttk.Label(notebook.nametowidget(notebook.select()), text='E_ID')
         e_id_label.pack()
@@ -243,12 +295,30 @@ def update_management_tab_content(ae):
         r_id_entry = ttk.Entry(notebook.nametowidget(notebook.select()), textvariable=r_id)
         r_id_entry.pack()
 
-        button = ttk.Button(selected_tab, text='Insert', command=lambda:am.insert_employee(e_id,fname,minit,lname,street,city,state,zip_val,job_type,start_date,super_id,h_id,r_id))
+        button = ttk.Button(selected_tab, text='Insert', command=lambda:am.insert_employee(e_id.get(),fname.get(),minit.get(),lname.get(),street.get(),city.get(),state.get(),zip_val.get(),job_type.get(),start_date.get(),super_id.get(),h_id.get(),r_id.get()))
         button.pack()
-        button = ttk.Button(selected_tab, text='Update', command=lambda:am.insert_employee(e_id,fname,minit,lname,street,city,state,zip_val,job_type,start_date,super_id,h_id,r_id))
+        button = ttk.Button(selected_tab, text='Update', command=lambda:am.insert_employee(e_id.get(),fname.get(),minit.get(),lname.get(),street.get(),city.get(),state.get(),zip_val.get(),job_type.get(),start_date.get(),super_id.get(),h_id.get(),r_id.get()))
         button.pack()
+
+        columns = ("EID", "STARTDATE", "JOBTYPE", "FIRST", "MINIT", "LAST", "STREET", "CITY", "STATE", "ZIP", "SUPER_ID", "HID", "RID")
+        tree = ttk.Treeview(selected_tab, columns=columns, show="headings")
+
+        for col in columns:
+            tree.heading(col, text=col)
+
+        for row in results:
+            tree.insert("", "end", values=row)
+
+        tree.bind("<<TreeviewSelect>>", lambda event: listbox_on_select_item(event, tree))
+
+        tree.pack(side=tk.LEFT, fill='both', expand=True)
+
+        sb = tk.Scrollbar(selected_tab)
+        sb.pack(side=tk.RIGHT, fill='y')
+
+        tree.config(yscrollcommand=sb.set)
     elif ae == "Hourly_Rate":
-        #am.view_hourly_rate()
+        results=am.view_hourly_rate()
 
         h_id_label = ttk.Label(notebook.nametowidget(notebook.select()), text='H_ID')
         h_id_label.pack()
@@ -262,10 +332,28 @@ def update_management_tab_content(ae):
         rate_entry = ttk.Entry(notebook.nametowidget(notebook.select()), textvariable=rate)
         rate_entry.pack()
 
-        button = ttk.Button(selected_tab, text='Insert', command=lambda:am.insert_hourly_rate(h_id,rate))
+        button = ttk.Button(selected_tab, text='Insert', command=lambda:am.insert_hourly_rate(h_id.get(),rate.get()))
         button.pack()
-        button = ttk.Button(selected_tab, text='Update', command=lambda:am.update_hourly_rate(h_id,rate))
+        button = ttk.Button(selected_tab, text='Update', command=lambda:am.update_hourly_rate(h_id.get(),rate.get()))
         button.pack()
+
+        columns = ("HID", "RATE")
+        tree = ttk.Treeview(selected_tab, columns=columns, show="headings")
+
+        for col in columns:
+            tree.heading(col, text=col)
+
+        for row in results:
+            tree.insert("", "end", values=row)
+
+        tree.bind("<<TreeviewSelect>>", lambda event: listbox_on_select_item(event, tree))
+
+        tree.pack(side=tk.LEFT, fill='both', expand=True)
+
+        sb = tk.Scrollbar(selected_tab)
+        sb.pack(side=tk.RIGHT, fill='y')
+
+        tree.config(yscrollcommand=sb.set)
 
 
 def switch_management_tab(event):
